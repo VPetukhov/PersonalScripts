@@ -11,8 +11,14 @@ import click
 @click.argument('invoice_id', type=int)
 @click.option('-o', '--out_path', type=click.Path(), default=None)
 def generate_invoice(invoice_template: str, time_file: str, invoice_id: int, out_path: str = None):
+    fname = f'Invoice_{invoice_id}.xlsx'
     if out_path is None:
-        out_path = f'./Invoice_{invoice_id}.xlsx'
+        out_path = fname
+    elif out_path == ":template":
+        out_path = os.path.dirname(invoice_template)
+        out_path = os.path.join(out_path, fname)
+    elif os.path.isdir(out_path):
+        out_path = os.path.join(out_path, fname)
 
     df = pd.read_csv(time_file)[["Description", "Start date", "Duration", "Project"]].rename(columns={'Start date': 'Date'})
     df["Duration"] = pd.to_timedelta(df["Duration"])
